@@ -1,0 +1,75 @@
+---
+
+fail_fast: false
+
+minimum_pre_commit_version: "2.19.0"
+
+repos:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.77.0
+    hooks:
+      # see https://github.com/antonbabenko/pre-commit-terraform#checkov-deprecated-and-terraform_checkov
+      - id: terraform_checkov
+        args:
+          - --args=--quiet
+          - --args=--skip-check CKV2_AWS_8
+      # see https://github.com/antonbabenko/pre-commit-terraform#terraform_docs
+      - id: terraform_docs
+        args:
+          - --args=--config=.config/.terraform-docs.yml
+          - --args=--lockfile=false
+      # see https://github.com/antonbabenko/pre-commit-terraform#terraform_fmt
+      - id: terraform_fmt
+      # see https://github.com/antonbabenko/pre-commit-terraform#terraform_tflint
+      - id: terraform_tflint
+        exclude: examples/.*
+        args:
+          - --args=--config=__GIT_WORKING_DIR__/.config/.tflint.hcl
+          - --args=--only=terraform_deprecated_interpolation
+          - --args=--only=terraform_deprecated_index
+          - --args=--only=terraform_unused_declarations
+          - --args=--only=terraform_comment_syntax
+          - --args=--only=terraform_documented_outputs
+          - --args=--only=terraform_documented_variables
+          - --args=--only=terraform_typed_variables
+          - --args=--only=terraform_module_pinned_source
+          - --args=--only=terraform_naming_convention
+          - --args=--only=terraform_required_version
+          - --args=--only=terraform_required_providers
+          - --args=--only=terraform_standard_module_structure
+          - --args=--only=terraform_workspace_remote
+      # see https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
+      - id: terraform_providers_lock
+      # see https://github.com/antonbabenko/pre-commit-terraform#terraform_tfsec
+      - id: terraform_tfsec
+        args:
+          - --args=--exclude-downloaded-modules
+          - --args=--custom-check-dir=__GIT_WORKING_DIR__/config/.tfsec
+        files: \.tf$
+        exclude: \.terraform\/.*$
+      # see https://github.com/antonbabenko/pre-commit-terraform#terraform_validate
+      - id: terraform_validate
+        exclude: examples/.*
+
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-symlinks
+      - id: check-vcs-permalinks
+      - id: check-xml
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+        exclude: templates/.*
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: no-commit-to-branch
+      - id: trailing-whitespace
+
+...
